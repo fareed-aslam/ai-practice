@@ -1,0 +1,287 @@
+# =========================
+# IMPORTING LIBRARIES
+# =========================
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+import warnings
+warnings.filterwarnings('ignore')
+
+
+# =========================
+# LOADING DATASETS
+# =========================
+df_mat = pd.read_excel('/content/student-mat.xlsx')
+df_por = pd.read_excel('/content/student-por.xlsx')
+
+df_mat.head()
+df_por.head()
+
+
+# =========================
+# BASIC DATA INSPECTION
+# =========================
+df_mat.shape
+df_por.shape
+
+
+# =========================
+# READING WORD DOCUMENT
+# =========================
+!pip install python-docx
+from docx import Document
+
+doc = Document("/content/student.docx")
+
+for para in doc.paragraphs:
+    print(para.text)
+
+
+# =========================
+# MISSING VALUES CHECK
+# =========================
+df_por.isna().sum()
+df_mat.isna().sum()
+
+
+# =========================
+# Remove MISSING VALUES CHECK
+# =========================
+df_por.dropna()
+df_mat.dropna()
+
+
+# =========================
+# DUPLICATE VALUES CHECK
+# =========================
+df_por.duplicated().sum()
+df_mat.duplicated().sum()
+
+
+# =========================
+# DATASET INFO
+# =========================
+df_mat.info()
+df_mat.nunique()
+df_mat.describe()
+df_por.describe()
+
+
+# =========================
+# UNIQUE VALUES IN COLUMNS
+# =========================
+for column in df_por.columns:
+    print(f"Categories in {column} variable: ", end=" ")
+    print(df_por[column].unique())
+
+
+# =========================
+# NUMERICAL & CATEGORICAL FEATURES
+# =========================
+numeric_features = [feature for feature in df_mat.columns if df_mat[feature].dtype != 'O']
+categorical_features = [feature for feature in df_mat.columns if df_mat[feature].dtype == 'O']
+
+print('We have {} numerical features : {}'.format(len(numeric_features), numeric_features))
+print('We have {} categorical features : {}'.format(len(categorical_features), categorical_features))
+
+
+# =========================
+# FEATURE ENGINEERING
+# =========================
+df_por['total score'] = df_por['G1'] + df_por['G2']
+df_por['average'] = df_por['total score'] / 2
+df_por.head()
+
+
+# =========================
+# MUTUAL INFORMATION SCORE
+# =========================
+from sklearn.metrics import mutual_info_score
+
+def compute_mutual_information(categorical_serie):
+    return mutual_info_score(categorical_serie, df_por.G3)
+
+categorical_variables = df_por.select_dtypes(include=object)
+
+feature_importance = categorical_variables.apply(compute_mutual_information).sort_values(ascending=False)
+
+print(feature_importance)
+
+
+# =========================
+# DISTRIBUTION PLOTS (AVERAGE SCORE)
+# =========================
+fig, axs = plt.subplots(1, 2, figsize=(15, 7))
+
+plt.subplot(121)
+sns.histplot(data=df_por, x='average', bins=30, kde=True, color='g')
+
+plt.subplot(122)
+sns.histplot(data=df_por, x='average', kde=True, hue='sex')
+
+plt.show()
+
+
+# =========================
+# TOTAL SCORE DISTRIBUTION
+# =========================
+fig, axs = plt.subplots(1, 2, figsize=(15, 7))
+
+plt.subplot(121)
+sns.histplot(data=df_por, x='total score', bins=30, kde=True, color='g')
+
+plt.subplot(122)
+sns.histplot(data=df_por, x='total score', kde=True, hue='sex')
+
+plt.show()
+
+
+# =========================
+# STUDYTIME ANALYSIS
+# =========================
+plt.subplots(1, 3, figsize=(25, 6))
+
+plt.subplot(141)
+sns.histplot(data=df_por, x='average', kde=True, hue='studytime')
+
+plt.subplot(142)
+sns.histplot(data=df_por[df_por.sex == 'M'], x='average', kde=True, hue='studytime')
+
+plt.subplot(143)
+sns.histplot(data=df_por[df_por.sex == 'F'], x='average', kde=True, hue='studytime')
+
+plt.show()
+
+
+# =========================
+# G3 DISTRIBUTION BY GENDER
+# =========================
+plt.figure(figsize=(25, 6))
+
+plt.subplot(131)
+sns.histplot(data=df_por, x='G3', kde=True)
+
+plt.subplot(132)
+sns.histplot(data=df_por[df_por['sex'] == 'F'], x='G3', kde=True)
+
+plt.subplot(133)
+sns.histplot(data=df_por[df_por['sex'] == 'M'], x='G3', kde=True)
+
+plt.tight_layout()
+plt.show()
+
+
+# =========================
+# VIOLIN PLOTS FOR GRADES
+# =========================
+plt.figure(figsize=(18, 8))
+
+plt.subplot(1, 3, 1)
+sns.violinplot(y='G1', data=df_por)
+
+plt.subplot(1, 3, 2)
+sns.violinplot(y='G2', data=df_por)
+
+plt.subplot(1, 3, 3)
+sns.violinplot(y='G3', data=df_por)
+
+plt.tight_layout()
+plt.show()
+
+
+# =========================
+# PIE CHARTS (DEMOGRAPHICS)
+# =========================
+plt.rcParams['figure.figsize'] = (30, 12)
+
+plt.subplot(1, 3, 1)
+plt.pie(df_por['sex'].value_counts(), labels=df_por['sex'].value_counts().index, autopct='%1.2f%%')
+plt.title('Gender')
+
+plt.subplot(1, 3, 2)
+plt.pie(df_por['school'].value_counts(), labels=df_por['school'].value_counts().index, autopct='%1.2f%%')
+plt.title('School')
+
+plt.subplot(1, 3, 3)
+plt.pie(df_por['address'].value_counts(), labels=df_por['address'].value_counts().index, autopct='%1.2f%%')
+plt.title('Address')
+
+plt.show()
+
+
+# =========================
+# GENDER COUNT + PIE CHART
+# =========================
+f, ax = plt.subplots(1, 2, figsize=(20, 10))
+
+sns.countplot(x='sex', data=df_por, ax=ax[0])
+
+ax[1].pie(df_por['sex'].value_counts(), labels=df_por['sex'].value_counts().index, explode=[0, 0.1], autopct='%1.1f%%')
+
+plt.show()
+
+
+# =========================
+# AVERAGE SCORES BY GENDER
+# =========================
+Group_data2 = df_por.groupby('sex')
+
+f, ax = plt.subplots(1, 3, figsize=(20, 8))
+
+sns.barplot(x=Group_data2['G1'].mean().index, y=Group_data2['G1'].mean().values, ax=ax[0])
+sns.barplot(x=Group_data2['G2'].mean().index, y=Group_data2['G2'].mean().values, ax=ax[1])
+sns.barplot(x=Group_data2['G3'].mean().index, y=Group_data2['G3'].mean().values, ax=ax[2])
+
+plt.show()
+
+
+# =========================
+# SCHOOL COMPARISON
+# =========================
+sns.countplot(x='school', data=df_por)
+plt.show()
+
+
+# =========================
+# AVERAGE SCORES BY GENDER (BARH)
+# =========================
+df_por.groupby('sex')[['G1', 'G2', 'G3']].mean().plot(kind='barh', figsize=(10, 10))
+plt.show()
+
+
+# =========================
+# STUDY TIME DISTRIBUTION
+# =========================
+sns.countplot(x='studytime', data=df_por)
+plt.show()
+
+
+# =========================
+# STUDYTIME & FAILURES VS GENDER
+# =========================
+f, ax = plt.subplots(1, 2, figsize=(20, 8))
+
+sns.countplot(x='studytime', hue='sex', data=df_por, ax=ax[0])
+sns.countplot(x='failures', hue='sex', data=df_por, ax=ax[1])
+
+plt.show()
+
+
+# =========================
+# GRADES VS STUDYTIME
+# =========================
+plt.figure(figsize=(12, 10))
+
+plt.subplot(2, 2, 1)
+sns.barplot(x='studytime', y='G1', hue='sex', data=df_por)
+
+plt.subplot(2, 2, 2)
+sns.barplot(x='studytime', y='G2', hue='sex', data=df_por)
+
+plt.subplot(2, 2, 3)
+sns.barplot(x='studytime', y='G3', hue='sex', data=df_por)
+
+plt.tight_layout()
+plt.show()

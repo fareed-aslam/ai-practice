@@ -1,0 +1,155 @@
+# NumPy: used for numerical operations and array handling
+import numpy as np
+
+# -----------------------------
+# Linear Regression Example
+# -----------------------------
+# Scikit-learn: used for machine learning models (Linear Regression)
+from sklearn.linear_model import LinearRegression
+
+X = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+y = np.array([2, 4, 6, 8, 10])
+
+model = LinearRegression()
+model.fit(X, y)
+print("Predictions:", model.predict(X))
+
+
+# -----------------------------
+# Logistic Regression Example
+# -----------------------------
+# Scikit-learn: provides datasets, model splitting, and evaluation metrics
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+data = load_iris()
+X = data.data
+y = data.target
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42
+)
+
+# Train model
+model = LogisticRegression(max_iter=200)
+model.fit(X_train, y_train)
+
+# Predict & evaluate
+y_pred = model.predict(X_test)
+print(f'Accuracy: {accuracy_score(y_test, y_pred)}')
+
+
+# -----------------------------
+# Seaborn + Matplotlib: Data Visualization
+# -----------------------------
+# Seaborn: high-level statistical visualization
+# Matplotlib: low-level plotting and customization
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+
+data = pd.DataFrame({'x': [1,2,3,4,5], 'y': [2,4,6,8,10]})
+
+sns.scatterplot(x='x', y='y', data=data)
+plt.title("Seaborn Scatter Plot")
+plt.show()
+
+
+# Seaborn: pairwise relationship visualization
+sns.pairplot(sns.load_dataset("iris"), hue="species")
+plt.show()
+
+
+# -----------------------------
+# NumPy Operations
+# -----------------------------
+# NumPy: used for statistical calculations
+arr = np.array([1, 2, 3, 4, 5])
+print(np.mean(arr))  # Mean
+print(np.sum(arr))   # Sum
+
+
+# -----------------------------
+# Pandas: Data Handling
+# -----------------------------
+# Pandas: used for reading, writing, and manipulating datasets
+df = pd.read_csv('/content/sample_data/california_housing_test.csv')
+print(df.tail())
+
+
+# -----------------------------
+# Matplotlib: Bar Chart
+# -----------------------------
+# Matplotlib: used for creating basic plots like bar charts
+categories = ["A", "B", "C", "D"]
+values = [10, 20, 15, 30]
+
+plt.bar(categories, values, color='green')
+plt.xlabel("Categories")
+plt.ylabel("Values")
+plt.title("Bar Chart Example")
+plt.show()
+
+
+# -----------------------------
+# Matplotlib: Line Plot
+# -----------------------------
+# Matplotlib: used for plotting line graphs
+plt.plot([1, 2, 3, 4], [10, 20, 25, 30])
+plt.title('Sample Line Plot')
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+plt.show()
+
+
+# -----------------------------
+# Pandas: CSV Read/Write
+# -----------------------------
+# Pandas: used for file operations
+df = pd.read_csv("/content/data.csv")
+df.to_csv("output.csv", index=False)
+print(df.head())
+
+
+# -----------------------------
+# Titanic Dataset Cleaning
+# -----------------------------
+# Seaborn: provides built-in datasets
+df = sns.load_dataset("titanic")
+
+print(df.isnull().sum())
+
+# Pandas: data cleaning (handling missing values)
+df['age'] = df['age'].fillna(df['age'].mean())
+df['embarked'] = df['embarked'].fillna(df['embarked'].mode()[0])
+df['deck'] = df['deck'].astype(str).fillna('Unknown')
+
+df = df.dropna()
+print(df.isnull().sum())
+
+
+# -----------------------------
+# Scikit-learn Preprocessing
+# -----------------------------
+# Scikit-learn: preprocessing (encoding & scaling)
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+df['sex'] = le.fit_transform(df['sex'])
+print(df['sex'].head())
+
+# Pandas: one-hot encoding
+df = pd.get_dummies(df, columns=['embarked'], drop_first=True)
+print(df.head())
+
+
+# -----------------------------
+# Visualization: Histogram
+# -----------------------------
+# Matplotlib: used with Pandas for histograms
+df[['age', 'fare']].hist(bins=20, figsize=(8,4))
+plt.show()

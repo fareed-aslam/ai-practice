@@ -1,0 +1,62 @@
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+
+# =========================
+# GENERATE SAMPLE DATA
+# =========================
+np.random.seed(42)
+
+# 100 samples, 5 features
+x = np.random.rand(100, 5)
+
+# Binary target (0 or 1)
+y = np.random.randint(0, 2, 100)
+
+
+# =========================
+# TRAIN-TEST SPLIT
+# =========================
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, test_size=0.2, random_state=42
+)
+
+
+# =========================
+# MODEL INITIALIZATION
+# =========================
+DT = DecisionTreeClassifier()
+
+
+# =========================
+# MODEL TRAINING
+# =========================
+model = DT.fit(x_train, y_train)
+
+
+# =========================
+# PREDICTIONS
+# =========================
+y_pred = model.predict(x_test)
+
+print("Predictions:", y_pred)
+
+
+# =========================
+# TRAINING ACCURACY
+# =========================
+training_accuracy = model.score(x_train, y_train) * 100
+
+print("\n==================== TRAINING ACCURACY ====================")
+print(f"Training Accuracy: {training_accuracy:.2f}%")
+
+
+# =========================
+# TESTING ACCURACY
+# =========================
+testing_accuracy = accuracy_score(y_test, y_pred) * 100
+
+print("\n==================== TESTING ACCURACY ====================")
+print(f"Testing Accuracy: {testing_accuracy:.2f}%")

@@ -1,0 +1,22 @@
+from sklearn.model_selection import LeaveOneOut
+
+# Initialize LOOCV
+loo = LeaveOneOut()
+
+# Store accuracy scores
+loo_scores = []
+
+# Perform LOOCV
+for train_index, test_index in loo.split(X):
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+    # Train model
+    model.fit(X_train, y_train)
+
+    # Predict and evaluate
+    y_pred = model.predict(X_test)
+    loo_scores.append(accuracy_score(y_test, y_pred))
+
+# Print average accuracy
+print("LOOCV Average Accuracy:", np.mean(loo_scores))

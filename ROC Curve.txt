@@ -1,0 +1,131 @@
+# -----------------------------
+
+# Import libraries
+
+# -----------------------------
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import roc_curve, roc_auc_score
+
+# -----------------------------
+
+# Load dataset
+
+# -----------------------------
+
+df = pd.read_csv("data.csv")
+
+# -----------------------------
+
+# Convert regression target into binary classification
+
+# (ROC requires 0/1 labels)
+
+# -----------------------------
+
+df["target"] = (df["Salary"] > 55000).astype(int)
+
+# -----------------------------
+
+# Define features and target
+
+# -----------------------------
+
+X = df.drop(columns=["Salary", "target"])   # features
+y = df["target"]                            # binary target
+
+# -----------------------------
+
+# Convert categorical variables (if any)
+
+# -----------------------------
+
+X = pd.get_dummies(X)
+
+# -----------------------------
+
+# Split dataset
+
+# -----------------------------
+
+x_train, x_test, y_train, y_test = train_test_split(
+X, y,
+test_size=0.3,
+random_state=42
+)
+
+# -----------------------------
+
+# Create Decision Tree model
+
+# -----------------------------
+
+DT = DecisionTreeClassifier()
+
+# -----------------------------
+
+# Train model
+
+# -----------------------------
+
+DT.fit(x_train, y_train)
+
+# -----------------------------
+
+# Predict probabilities
+
+# -----------------------------
+
+probabilities = DT.predict_proba(x_test)[:, 1]
+
+# -----------------------------
+
+# ROC Curve calculation
+
+# -----------------------------
+
+fpr, tpr, thresholds = roc_curve(y_test, probabilities)
+
+# -----------------------------
+
+# AUC score
+
+# -----------------------------
+
+roc_auc = roc_auc_score(y_test, probabilities)
+
+# -----------------------------
+
+# Plot ROC Curve
+
+# -----------------------------
+
+plt.figure(figsize=(8, 6))
+
+plt.plot(
+fpr,
+tpr,
+color='blue',
+label=f'ROC Curve (AUC = {roc_auc:.2f})'
+)
+
+plt.fill_between(
+fpr,
+tpr,
+color='skyblue',
+alpha=0.4
+)
+
+plt.plot([0, 1], [0, 1], '--', color='gray')
+
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve (Decision Tree)")
+
+plt.legend(loc="lower right")
+plt.show()
