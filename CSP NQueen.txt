@@ -1,0 +1,99 @@
+# OR-Tools: used for solving CSP problems like N-Queens
+from ortools.sat.python import cp_model
+import time
+
+
+# -----------------------------
+# Create model
+# -----------------------------
+model = cp_model.CpModel()
+
+board_size = 8
+
+# -----------------------------
+# Define variables
+# queens[i] = row position of queen in column i
+# -----------------------------
+queens = [
+    model.NewIntVar(0, board_size - 1, f"x_{i}")
+    for i in range(board_size)
+]
+
+
+# -----------------------------
+# Row constraint (all different)
+# -----------------------------
+model.AddAllDifferent(queens)
+
+
+# -----------------------------
+# Diagonal constraints
+# -----------------------------
+diag1 = []  # top-left to bottom-right (row + col)
+diag2 = []  # top-right to bottom-left (row - col)
+
+for i in range(board_size):
+    d1 = model.NewIntVar(0, 2 * board_size, f"diag1_{i}")
+    d2 = model.NewIntVar(-board_size, board_size, f"diag2_{i}")
+
+    model.Add(d1 == queens[i] + i)
+    model.Add(d2 == queens[i] - i)
+
+    diag1.append(d1)
+    diag2.append(d2)
+
+# Enforce diagonal uniqueness
+model.AddAllDifferent(diag1)
+model.AddAllDifferent(diag2)
+
+
+# -----------------------------
+# Solution Printer Class
+# -----------------------------
+class NQueenSolutionPrinter(cp_model.CpSolverSolutionCallback):
+    def __init__(self, queens):
+        super().__init__()
+        self.__queens = queens
+        self.__solution_count = 0
+        self.__start_time = time.time()
+
+    @property
+    def solution_count(self):
+        return self.__solution_count
+
+    def on_solution_callback(self):
+        current_time = time.time()
+
+        print(
+            f"Solution {self.__solution_count}, "
+            f"time = {current_time - self.__start_time:.2f}s"
+        )
+
+        self.__solution_count += 1
+
+        n = len(self.__queens)
+
+        for i in range(n):
+            for j in range(n):
+                if self.Value(self.__queens[j]) == i:
+                    print("Q", end=" ")
+                else:
+                    print("_", end=" ")
+            print()
+        print()
+
+
+# -----------------------------
+# Solve and print all solutions
+# -----------------------------
+solver = cp_model.CpSolver()
+solution_printer = NQueenSolutionPrinter(queens)
+
+solver.parameters.enumerate_all_solutions = True
+solver.Solve(model, solution_printer)
+
+
+# -----------------------------
+# Print total solutions
+# -----------------------------
+print("Total solutions:", solution_printer.solution_count)

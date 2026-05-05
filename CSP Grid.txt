@@ -1,0 +1,95 @@
+# Math: used for mathematical operations (e.g., square root)
+import math
+
+# Random: used to generate random start and goal positions
+import random
+
+# OR-Tools: used for solving Constraint Satisfaction Problems (CSP)
+from ortools.sat.python import cp_model
+
+
+# -----------------------------
+# Class representing the grid environment
+# -----------------------------
+class GridEnvironment:
+
+    def __init__(self, size):
+        self.size = size   # Grid size (e.g., 10x10)
+
+        # Create grid filled with zeros
+        self.grid = [[0 for _ in range(size)] for _ in range(size)]
+
+        # Generate random start and goal positions
+        self.start = (random.randint(0, size - 1), random.randint(0, size - 1))
+        self.goal = (random.randint(0, size - 1), random.randint(0, size - 1))
+
+
+    # -----------------------------
+    # Solve CSP using Pythagorean theorem
+    # -----------------------------
+    def solve_csp(self):
+
+        # Create CSP model
+        model = cp_model.CpModel()
+
+        # Extract coordinates
+        x1, y1 = self.start
+        x2, y2 = self.goal
+
+        # Compute horizontal and vertical distances
+        a = abs(x2 - x1)
+        b = abs(y2 - y1)
+
+        # -----------------------------
+        # Define variables
+        # -----------------------------
+        c = model.NewIntVar(0, self.size * 2, 'c')
+
+        a_sq = model.NewIntVar(0, self.size ** 2, 'a_sq')
+        b_sq = model.NewIntVar(0, self.size ** 2, 'b_sq')
+        c_sq = model.NewIntVar(0, self.size ** 2, 'c_sq')
+
+
+        # -----------------------------
+        # Add constraints
+        # -----------------------------
+        model.AddMultiplicationEquality(a_sq, [a, a])
+        model.AddMultiplicationEquality(b_sq, [b, b])
+        model.AddMultiplicationEquality(c_sq, [c, c])
+
+        # Pythagorean constraint: c² = a² + b²
+        model.Add(c_sq == a_sq + b_sq)
+
+
+        # -----------------------------
+        # Solve model
+        # -----------------------------
+        solver = cp_model.CpSolver()
+        status = solver.Solve(model)
+
+        # If solution found
+        if status == cp_model.FEASIBLE or status == cp_model.OPTIMAL:
+            return a, b, solver.Value(c)
+
+        # Fallback to standard formula
+        return a, b, math.sqrt(a**2 + b**2)
+
+
+    # -----------------------------
+    # Display results
+    # -----------------------------
+    def display(self):
+
+        print(f"Start Position: {self.start}")
+        print(f"Goal Position: {self.goal}")
+
+        a, b, c = self.solve_csp()
+
+        print(f"Calculated Distances: Base={a}, Height={b}, Hypotenuse={c:.2f}")
+
+
+# -----------------------------
+# Simulation
+# -----------------------------
+environment = GridEnvironment(10)
+environment.display()
