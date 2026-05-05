@@ -1,44 +1,32 @@
 import math
 
-# leaf values
 leaves = [3, 9, 1, 8, 5, 2, 7, 4, 6]
 
-# grouping into 3-3
-tree = [
-    leaves[0:3],  # A
-    leaves[3:6],  # B
-    leaves[6:9]   # C
-]
-
-def alpha_beta(node, alpha, beta, is_max):
-    if isinstance(node, int):
-        return node
+def alpha_beta(depth, index, is_max, alpha, beta):
+    if depth == 2:
+        start = index * 3
+        return min(leaves[start : start + 3])
 
     if is_max:
         val = -math.inf
-        for child in node:
-            val = max(val, alpha_beta(child, alpha, beta, False))
+        for i in range(3):
+            res = alpha_beta(depth + 1, i, False, alpha, beta)
+            val = max(val, res)
             alpha = max(alpha, val)
             if beta <= alpha:
                 break
         return val
     else:
         val = math.inf
-        for child in node:
-            val = min(val, alpha_beta(child, alpha, beta, True))
+        # Yahan index range 1 rakhi hai kyunke 9 leaves depth 2 par cover ho rahi hain
+        iterations = 3 if depth == 0 else 1 
+        for i in range(iterations):
+            res = alpha_beta(depth + 1, i, True, alpha, beta)
+            val = min(val, res)
             beta = min(beta, val)
             if beta <= alpha:
                 break
         return val
 
-# full tree (root is MIN)
-root = tree
-
-result = alpha_beta(root, -math.inf, math.inf, False)
-
-print("Root Value:", result)
-
-# also print each branch
-print("A:", max(tree[0]))
-print("B:", max(tree[1]))
-print("C:", max(tree[2]))
+result = alpha_beta(0, 0, False, -math.inf, math.inf)
+print(result)
