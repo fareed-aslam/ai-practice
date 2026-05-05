@@ -1,0 +1,44 @@
+import math
+
+# leaf values
+leaves = [3, 9, 1, 8, 5, 2, 7, 4, 6]
+
+# grouping into 3-3
+tree = [
+    leaves[0:3],  # A
+    leaves[3:6],  # B
+    leaves[6:9]   # C
+]
+
+def alpha_beta(node, alpha, beta, is_max):
+    if isinstance(node, int):
+        return node
+
+    if is_max:
+        val = -math.inf
+        for child in node:
+            val = max(val, alpha_beta(child, alpha, beta, False))
+            alpha = max(alpha, val)
+            if beta <= alpha:
+                break
+        return val
+    else:
+        val = math.inf
+        for child in node:
+            val = min(val, alpha_beta(child, alpha, beta, True))
+            beta = min(beta, val)
+            if beta <= alpha:
+                break
+        return val
+
+# full tree (root is MIN)
+root = tree
+
+result = alpha_beta(root, -math.inf, math.inf, False)
+
+print("Root Value:", result)
+
+# also print each branch
+print("A:", max(tree[0]))
+print("B:", max(tree[1]))
+print("C:", max(tree[2]))
