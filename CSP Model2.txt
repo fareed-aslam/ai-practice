@@ -2,51 +2,29 @@
 from ortools.sat.python import cp_model
 
 
-# -----------------------------
-# Create the model
-# -----------------------------
 model = cp_model.CpModel()
 
 
-# -----------------------------
-# Define variables
-# -----------------------------
 num_vals = 3
 x = model.NewIntVar(0, num_vals - 1, "x")
 y = model.NewIntVar(0, num_vals - 1, "y")
 z = model.NewIntVar(0, num_vals - 1, "z")
 
 
-# -----------------------------
-# Add constraints
-# -----------------------------
 model.Add(x != y)
 
-
-# -----------------------------
-# Create solver
-# -----------------------------
 solver = cp_model.CpSolver()
 
 
-# -----------------------------
-# Print all solutions
-# -----------------------------
 solution_printer = cp_model.VarArraySolutionPrinter([x, y, z])
 solver.parameters.enumerate_all_solutions = True
 
 solver.Solve(model, solution_printer)
 
 
-# -----------------------------
-# Solve model (for final status)
-# -----------------------------
 status = solver.Solve(model)
 
 
-# -----------------------------
-# Status mapping
-# -----------------------------
 status_mapping = {
     cp_model.OPTIMAL: "OPTIMAL",
     cp_model.FEASIBLE: "FEASIBLE",
@@ -57,9 +35,6 @@ status_mapping = {
 print(f"Solver Status: {status_mapping.get(status, 'UNKNOWN')} ({status})")
 
 
-# -----------------------------
-# Print solution (if exists)
-# -----------------------------
 if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
     print(f"x = {solver.Value(x)}")
     print(f"y = {solver.Value(y)}")
