@@ -2,52 +2,29 @@
 from ortools.sat.python import cp_model
 
 
-# -----------------------------
-# Create the model
-# -----------------------------
 model = cp_model.CpModel()
 
 
-# -----------------------------
-# Define variables (domain: 1 to 3)
-# -----------------------------
 a = model.NewIntVar(1, 3, 'a')  # Create variable a
 b = model.NewIntVar(1, 3, 'b')  # Create variable b
 c = model.NewIntVar(1, 3, 'c')  # Create variable c
 
 
-# -----------------------------
-# Add constraints (all different)
-# -----------------------------
 model.Add(a != b)
 model.Add(b != c)
 model.Add(a != c)
 
 
-# -----------------------------
-# Create solver
-# -----------------------------
 solver = cp_model.CpSolver()
 
 
-# -----------------------------
-# Print all possible solutions
-# -----------------------------
 solution_printer = cp_model.VarArraySolutionPrinter([a, b, c])
 
-# Enable printing all solutions
 solver.parameters.enumerate_all_solutions = True
 
 
-# -----------------------------
-# Solve the problem
-# -----------------------------
 solver.Solve(model, solution_printer)
 
-
-# -----------------------------
-# Status codes
-# -----------------------------
 print("OPTIMAL:", cp_model.OPTIMAL)
 print("FEASIBLE:", cp_model.FEASIBLE)
 print("INFEASIBLE:", cp_model.INFEASIBLE)
